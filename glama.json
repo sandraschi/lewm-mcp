@@ -1,0 +1,10 @@
+{
+  "name": "lewm-mcp",
+  "version": "0.2.1",
+  "description": "FastMCP 3.2 server + glass dashboard for LeWorldModel (JEPA world model) train/eval via lucas-maes/le-wm",
+  "author": "sandraschi",
+  "tags": ["mcp", "fastmcp", "robotics", "world-model", "jepa", "lewm", "planning"],
+  "homepage": "https://github.com/sandraschi/lewm-mcp",
+  "paper": "https://arxiv.org/abs/2603.19312",
+  "upstream": "https://github.com/lucas-maes/le-wm"
+}
