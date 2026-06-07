@@ -11,8 +11,8 @@ if ($FrontendOnly) {
     npm run dev
     exit
 }
-$args = @()
-if ($Headless) { $args += "-Headless" }
-if ($BackendOnly) { $args += "-BackendOnly" }
-if ($NoBrowser) { $args += "-NoBrowser" }
-& $WebappStart @args
+& $WebappStart `
+    -Headless:$Headless `
+    -BackendOnly:$BackendOnly `
+    -FrontendOnly:$FrontendOnly `
+    -NoBrowser:$NoBrowser
