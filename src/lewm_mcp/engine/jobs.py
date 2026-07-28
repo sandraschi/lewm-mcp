@@ -131,7 +131,7 @@ def start_job(
     if env:
         merged_env.update(env)
 
-    proc = subprocess.Popen(  # noqa: S603
+    proc = subprocess.Popen(
         command,
         cwd=cwd,
         env=merged_env,
