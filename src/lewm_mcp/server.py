@@ -3,15 +3,22 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
 import structlog
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastmcp import Context, FastMCP
 
 from .engine.runner import UpstreamRunner
 from .web import setup_webapp
+
+try:
+    from prefab_ui import PrefabApp
+except ImportError:
+    PrefabApp = None  # type: ignore[assignment,misc]
 
 structlog.configure(
     processors=[
@@ -120,13 +127,45 @@ def build_mcp() -> FastMCP:
             ],
         }
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readonly": True})
     async def lewm_status() -> dict[str, Any]:
         """LEWM_STATUS — Snapshot of environment, upstream venv, and active jobs."""
         runner = UpstreamRunner.default()
         return {"success": True, "result": runner.health()}
 
-    @mcp.tool()
+    @mcp.resource("status://lewm/config")
+    async def lewm_config_resource() -> str:
+        """Live config snapshot as a resource."""
+        from .config import get_config
+
+        c = get_config()
+        return (
+            f"## LeWM Config\n\n"
+            f"- Upstream: {c.upstream_root or 'not configured'}\n"
+            f"- Device: {c.device}\n"
+            f"- Default data: {c.default_data}\n"
+            f"- Default policy: {c.default_policy}\n"
+            f"- Port: {c.api_port}\n"
+            f"- Dry run: {c.dry_run}\n"
+        )
+
+    @mcp.tool(app=True, annotations={"readonly": True})
+    async def show_lewm_status_card() -> dict[str, Any]:
+        """SHOW_LEWM_STATUS_CARD — Upstream health and config as a rich Prefab card."""
+        runner = UpstreamRunner.default()
+        h = runner.health()
+        if PrefabApp is not None:
+            app_ui = PrefabApp(title="LeWM-MCP Status")
+            app_ui.add_text(
+                f"Upstream: **{'ready' if h.get('upstream_configured') else 'missing'}**\n"
+                f"Venv: **{'ready' if h.get('upstream_python_ready') else 'missing'}**\n"
+                f"Device: **{h.get('device', '?')}**\n"
+                f"Active job: **{h.get('active_job', {}).get('job_id', 'none')}**"
+            )
+            return {"success": True, "content": "Status card rendered.", "structured_content": app_ui}
+        return {"success": True, "result": h}
+
+    @mcp.tool(annotations={"readonly": True})
     async def lewm_agentic_workflow(
         ctx: Context,
         goal: str,
@@ -196,6 +235,28 @@ mcp = build_mcp()
 
 _mcp_http = mcp.http_app(path="/")
 app = FastAPI(title="LeWM-MCP", lifespan=_mcp_http.lifespan)
+
+# CORS for local fleet dev + Tauri desktop
+_tauri_desktop = os.environ.get("LEWM_TAURI", "").lower() in ("1", "true", "yes")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:10928",
+        "http://127.0.0.1:10928",
+        "http://goliath:10928",
+        "http://localhost:10927",
+        "http://127.0.0.1:10927",
+        "http://goliath:10927",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
+        "tauri://localhost",
+    ],
+    allow_origin_regex=r"https?://tauri\.localhost(:\d+)?" if _tauri_desktop else None,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 setup_webapp(app, mcp)
 app.mount("/mcp", _mcp_http)
 

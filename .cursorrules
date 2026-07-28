@@ -1,0 +1,11 @@
+## Session Context (LeWM-MCP)
+
+You have access to LeWorldModel (LeWM) MCP server: train/eval job control, checkpoint management, and agentic planning.
+
+**Before starting work:**
+1. Check upstream health: `lewm_world(operation="health")`
+2. List available checkpoints: `lewm_world(operation="checkpoint_list")`
+3. Check recent jobs: `lewm_world(operation="job_status")`
+
+**At end of work:**
+- Stop any running GPU jobs: `lewm_world(operation="job_stop")`

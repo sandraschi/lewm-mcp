@@ -1,0 +1,16 @@
+# LeWM-MCP
+
+> Bridge to LeWorldModel (LeWM): compact JEPA world model — train/eval job control, checkpoint management, agentic planning.
+
+## Key Links
+
+- [llms-full.txt](llms-full.txt) — full reference
+- [README](README.md) — quick start
+- [docs/PRD.md](docs/PRD.md) — product requirements
+- [docs/MCP.md](docs/MCP.md) — MCP surface
+
+## Quick Facts
+
+- Ports: 10927 (backend + MCP HTTP `/mcp`), 10928 (Vite dashboard)
+- Upstream: `lucas-maes/le-wm` at `LEWM_UPSTREAM_ROOT`
+- Paper: arXiv 2603.19312

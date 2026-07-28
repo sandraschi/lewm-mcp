@@ -1,3 +1,35 @@
+
+## [Unreleased] — 2026-07-13
+
+### Added
+- Prefab UI card: `show_lewm_status_card` with `@mcp.tool(app=True)`
+- MCP resource: `status://lewm/config` for live config snapshot
+- Tool annotations: `readonly` for `lewm_status`/`lewm_agentic_workflow`
+- Session context injection: `.cursorrules` for tool-awareness
+- `playwright.config.ts` for E2E test configuration
+
+### Fixed
+- Security: `build.ps1` now bundles `.env.example` instead of `.env` (was leaking dev API keys)
+- Security: `tauri.conf.json` resources updated to `.env.example`
+- Tauri: `hooks.nsh` process names fixed to match actual binaries (`lewm-mcp-backend.exe`)
+- Tauri: `tauri.conf.json` targets changed from `"all"` to `["nsis"]`
+- Tauri: `backend.rs` upgraded with `free_port()`, stream watching, health polling
+- Version: `__init__.py` synced to match `pyproject.toml` (0.2.1)
+
+## [Unreleased] — 2026-06-14
+
+### Fixed
+- Tauri build: resolved Rust crate conflict (brotli/alloc-no-stdlib)
+- Tauri build: fixed PyInstaller path mismatch (hyphen to underscore in src dirs)
+- Tauri build: fixed TypeScript errors (unused imports, useRef arg, import.meta.env)
+- Tauri CORS: allow_origins includes tauri://localhost for WebView access
+
+### Added
+- CUA-NSIS: just cua-nsis-test recipe, smoke script, config
+- CUA-NSIS: build.ps1 now copies NSIS installer to dist/
+- CUA-NSIS: 11-phase smoke test (install, launch, WebView OCR, diagnostics, uninstall)
+- CUA-NSIS: local certification — all 11 phases pass locally (2026-06-14)
+
 # Changelog
 
 ## v0.2.1 (2026-06-06)
@@ -37,3 +69,5 @@
 - FastMCP 3.1 server with 3 MCP tools (lewm_world, lewm_status, lewm_agentic_workflow)
 - Glass dashboard (Vite React)
 - UpstreamRunner bridge to lucas-maes/le-wm
+
+

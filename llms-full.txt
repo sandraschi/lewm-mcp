@@ -1,0 +1,98 @@
+# LeWM-MCP Full Reference
+
+FastMCP 3.2 server bridging **LeWorldModel (LeWM)** — the compact JEPA world model — into the fleet: real upstream train/eval subprocesses, agentic workflow prep, and a glass Vite dashboard.
+
+## Architecture
+
+```
+src/lewm_mcp/
+  server.py          — FastMCP 3.2 server, 3 MCP tools
+  web.py             — FastAPI REST (/api/health, /api/status, /api/jobs/*)
+  engine/runner.py   — UpstreamRunner (LeWM upstream bridge)
+  engine/jobs.py     — Job supervisor (start, stop, logs, list)
+  config.py          — Configuration (LEWM_UPSTREAM_ROOT, LEWM_DEVICE)
+  transport.py       — Server transport setup
+  skills/lewm-mcp/SKILL.md  — Agent skill
+webapp/              — React glass dashboard (Vite)
+native/              — Tauri 2.0 desktop wrapper
+```
+
+## Ports
+
+| Service | Port |
+|---------|------|
+| Backend (FastAPI + FastMCP HTTP `/mcp`) | 10927 |
+| Frontend (Vite React) | 10928 |
+
+## MCP Tools
+
+### `lewm_world` (portmanteau)
+
+Operations: health, status, train_prepare, train_run, infer_prepare, eval_run, rollout, checkpoint_list, job_status, job_stop, job_logs, surprise_stub
+
+- `health` / `status` — upstream path, venv, STABLEWM_HOME, active job, device
+- `train_prepare` — validate upstream and dataset before training
+- `train_run(data_env="pusht", extra_args=...)` — spawn `train.py` subprocess in upstream Python 3.10 venv
+- `infer_prepare(policy="pusht/lewm")` — check policy checkpoint availability
+- `eval_run(eval_config="pusht.yaml", policy="pusht/lewm", extra_args=...)` — spawn `eval.py` MPC planning
+- `checkpoint_list` — glob STABLEWM_HOME for `*_object.ckpt`, `weights_epoch_*.pt`, `lewm_weights.ckpt`
+- `job_status(job_id=..., tail=40)` — active + recent jobs with log tail
+- `job_stop` — terminate running upstream subprocess
+- `job_logs(job_id=..., tail=200)` — tail job log file
+
+### `lewm_status`
+
+Config snapshot: upstream_root, upstream_python, stablewm_home, device, default_data, default_policy, single_gpu_lock, dry_run.
+
+### `lewm_agentic_workflow(goal=..., max_steps=8)`
+
+Multi-step planning with optional MCP sampling (`ctx.sample()`). Fallback to hardcoded plan steps when sampling is unavailable.
+
+## REST API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Fleet launcher probe |
+| `/api/status` | GET | Full status (MCP + upstream) |
+| `/api/config` | GET | Configuration dump |
+| `/api/checkpoints` | GET | List checkpoints under STABLEWM_HOME |
+| `/api/jobs` | GET | Active + recent jobs |
+| `/api/jobs/{job_id}` | GET | Job detail with log tail |
+| `/api/jobs/train` | POST | Start training job |
+| `/api/jobs/eval` | POST | Start eval job |
+| `/api/jobs/stop` | POST | Stop active job |
+
+## MCP Resources
+
+| URI | Description |
+|-----|-------------|
+| `skill://lewm-mcp/SKILL.md` | Agent skill for LeWM operations |
+
+## Configuration
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `LEWM_UPSTREAM_ROOT` | Path to le-wm clone | Auto-discover `D:\Dev\repos\external\le-wm` |
+| `LEWM_STABLEWM_HOME` / `STABLEWM_HOME` | Checkpoints + datasets | `{upstream}/.stable-wm` |
+| `LEWM_DEVICE` | CUDA device | `cuda:0` |
+| `LEWM_DEFAULT_DATA` | Default training dataset | `pusht` |
+| `LEWM_DEFAULT_POLICY` | Default eval policy | `pusht/lewm` |
+| `LEWM_DEFAULT_EVAL_CONFIG` | Default eval config | `pusht.yaml` |
+| `LEWM_SINGLE_GPU_LOCK` | One GPU job at a time | `1` |
+| `LEWM_DRY_RUN` | Log commands without spawning | `0` |
+| `MCP_TRANSPORT` | Transport mode | `stdio` |
+| `MCP_PORT` | HTTP port override | `10927` |
+
+## Upstream Datasets
+
+Supported train datasets: pusht, tworoom, dmc, ogb
+
+Bootstrap: `tools/bootstrap_upstream.ps1` creates Python 3.10 venv + installs `stable-worldmodel[train,env]`.
+
+Download assets: `tools/download_pusht_assets.ps1` (HF checkpoint) and `-WithDataset` (~13 GB expert data).
+
+## Known Issues
+
+- One GPU job at a time when `LEWM_SINGLE_GPU_LOCK=1`
+- Upstream requires Python 3.10 venv (separate from project venv)
+- Paper: arXiv 2603.19312 — ingested into arxiv-mcp depot via `tools/ingest_lewm_paper.ps1`

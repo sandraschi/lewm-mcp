@@ -1,0 +1,14 @@
+{
+  "product_name": "LeWM MCP",
+  "install_dir": "%LOCALAPPDATA%\\LeWM MCP",
+  "operator_exe": "lewm-mcp-native.exe",
+  "backend_process_names": ["lewm-mcp-native", "lewm-mcp-backend"],
+  "backend_port": 10927,
+  "health_path": "/api/health",
+  "diagnostics_path": "/api/diagnostics",
+  "feature_smoke_path": "/api/status",
+  "window_title_re": "LeWM MCP",
+  "nsis_glob": "native/target/release/bundle/nsis/LeWM MCP_*_x64-setup.exe",
+  "bridge_ok_text": "lewm-mcp",
+  "uninstall_registry_filter": "*LeWM MCP*"
+}

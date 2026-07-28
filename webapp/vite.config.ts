@@ -1,5 +1,5 @@
-import path from "path";
 import react from "@vitejs/plugin-react";
+import path from "path";
 import { defineConfig } from "vite";
 
 const API = "http://127.0.0.1:10927";
@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['goliath'],
+    allowedHosts: ["goliath"],
     port: 10928,
     host: "127.0.0.1",
     proxy: {
