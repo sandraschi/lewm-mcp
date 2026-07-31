@@ -47,14 +47,14 @@ export function App() {
   const refresh = useCallback(async () => {
     try {
       const [s, j, c] = await Promise.all([
-        fetch(API_BASE + "/api/status").then((r) => {
+        fetch(`${API_BASE}/api/status`).then((r) => {
           if (!r.ok) throw new Error(`status HTTP ${r.status}`);
           return r.json() as Promise<Status>;
         }),
-        fetch(API_BASE + "/api/jobs").then(
+        fetch(`${API_BASE}/api/jobs`).then(
           (r) => r.json() as Promise<{ jobs?: Job[] }>,
         ),
-        fetch(API_BASE + "/api/checkpoints").then(
+        fetch(`${API_BASE}/api/checkpoints`).then(
           (r) => r.json() as Promise<{ checkpoints?: Checkpoint[] }>,
         ),
       ]);
@@ -76,7 +76,7 @@ export function App() {
   const runTrain = async () => {
     setBusy(true);
     try {
-      const r = await fetch(API_BASE + "/api/jobs/train", {
+      const r = await fetch(`${API_BASE}/api/jobs/train`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data_env: dataEnv }),
@@ -94,7 +94,7 @@ export function App() {
   const runEval = async () => {
     setBusy(true);
     try {
-      const r = await fetch(API_BASE + "/api/jobs/eval", {
+      const r = await fetch(`${API_BASE}/api/jobs/eval`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ policy }),
@@ -112,7 +112,7 @@ export function App() {
   const stopJob = async () => {
     setBusy(true);
     try {
-      await fetch(API_BASE + "/api/jobs/stop", { method: "POST" });
+      await fetch(`${API_BASE}/api/jobs/stop`, { method: "POST" });
       await refresh();
     } finally {
       setBusy(false);
