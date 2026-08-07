@@ -1,13 +1,13 @@
 set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 import 'scripts/just/fleet.just'
 
-# ── Dashboard ─────────────────────────────────────────────────────────────────
+# --- Dashboard ---
 
 # Open the interactive recipe dashboard in the browser
 default:
     @just --list
 
-# ── Quality ───────────────────────────────────────────────────────────────────
+# --- Quality ---
 
 # Execute Ruff SOTA v13.1 linting
 lint:
@@ -24,7 +24,7 @@ fix:
     Set-Location '{{justfile_directory()}}\webapp'
     npx @biomejs/biome check --write .
 
-# ── Hardening ─────────────────────────────────────────────────────────────────
+# --- Hardening ---
 
 # Execute Bandit security audit
 check-sec:
@@ -36,7 +36,7 @@ audit-deps:
     Set-Location '{{justfile_directory()}}'
     uv run safety check
 
-# LeWM-MCP — just recipes (Windows + uv)
+# --- LeWM-MCP  just recipes  Windows  uv ---
 
 set shell := ["powershell", "-NoProfile", "-Command"]
 
@@ -69,3 +69,9 @@ build-native:
 	Set-Location '{{justfile_directory()}}\native'
 	npx @tauri-apps/cli build --bundles nsis
 
+
+# Bootstrap: install dev deps + pre-commit hook
+bootstrap:
+    uv sync --group dev
+    uv run pre-commit install
+    Write-Host "Pre-commit hooks installed." -ForegroundColor Green
