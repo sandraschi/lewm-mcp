@@ -30,7 +30,7 @@ def get_transport_config() -> dict:
 
 
 def create_argument_parser(server_name: str) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=f"{server_name} — FastMCP 3.1")
+    parser = argparse.ArgumentParser(description=f"{server_name} - FastMCP 3.1")
     parser.add_argument("--stdio", action="store_true", help="Force stdio transport")
     parser.add_argument("--http", action="store_true", help="HTTP streamable transport")
     parser.add_argument("--host", default=None)

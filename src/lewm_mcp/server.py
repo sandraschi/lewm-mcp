@@ -1,4 +1,4 @@
-"""LeWM-MCP — FastMCP server (train/infer bridge, agentic prep, web dashboard)."""
+"""LeWM-MCP - FastMCP server (train/infer bridge, agentic prep, web dashboard)."""
 
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ def build_mcp() -> FastMCP:
         job_id: str | None = None,
         tail: int = 40,
     ) -> dict[str, Any]:
-        """LEWM_WORLD — Portmanteau for upstream health, training, eval, and job control.
+        """LEWM_WORLD - Portmanteau for upstream health, training, eval, and job control.
 
         Args:
             operation: health | status | train_prepare | train_run | infer_prepare |
@@ -129,7 +129,7 @@ def build_mcp() -> FastMCP:
 
     @mcp.tool(annotations={"readonly": True})
     async def lewm_status() -> dict[str, Any]:
-        """LEWM_STATUS — Snapshot of environment, upstream venv, and active jobs."""
+        """LEWM_STATUS - Snapshot of environment, upstream venv, and active jobs."""
         runner = UpstreamRunner.default()
         return {"success": True, "result": runner.health()}
 
@@ -151,7 +151,7 @@ def build_mcp() -> FastMCP:
 
     @mcp.tool(app=True, annotations={"readonly": True})
     async def show_lewm_status_card() -> dict[str, Any]:
-        """SHOW_LEWM_STATUS_CARD — Upstream health and config as a rich Prefab card."""
+        """SHOW_LEWM_STATUS_CARD - Upstream health and config as a rich Prefab card."""
         runner = UpstreamRunner.default()
         h = runner.health()
         if PrefabApp is not None:
@@ -171,7 +171,7 @@ def build_mcp() -> FastMCP:
         goal: str,
         max_steps: int = 8,
     ) -> dict[str, Any]:
-        """LEWM_AGENTIC_WORKFLOW — Multi-step LeWM session planning (SEP-1577 friendly)."""
+        """LEWM_AGENTIC_WORKFLOW - Multi-step LeWM session planning (SEP-1577 friendly)."""
         fallback_steps = [
             "lewm_world(operation='health')",
             "lewm_world(operation='checkpoint_list')",

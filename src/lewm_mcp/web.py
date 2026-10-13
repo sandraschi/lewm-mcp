@@ -29,7 +29,7 @@ def setup_webapp(app: FastAPI, mcp: FastMCP) -> None:
 
     @app.get("/api/health")
     async def api_health() -> JSONResponse:
-        """Fleet launcher probe — minimal OK when process is up."""
+        """Fleet launcher probe - minimal OK when process is up."""
         return JSONResponse({"ok": True, "service": "lewm-mcp"})
 
     @app.get("/api/status")
